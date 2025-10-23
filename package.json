@@ -1,0 +1,15 @@
+{
+  "name": "social-media-automation",
+  "version": "1.0.0",
+  "description": "Automated blog post image generation system",
+  "main": "scripts/generate_image.js",
+  "scripts": {
+    "test": "node scripts/generate_image.js"
+  },
+  "keywords": ["automation", "blog", "images", "puppeteer"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.5.0"
+  }
+}

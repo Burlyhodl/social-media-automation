@@ -1,0 +1,12 @@
+{
+  "templatePath": "./templates/blog-post-template.html",
+  "outputPath": "./output/demo-image.png",
+  "title": "The Ultimate Guide to Automating Your Blog Post Images",
+  "backgroundImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200",
+  "overlayColor": "rgba(204, 85, 0, 0.75)",
+  "accentColor": "rgba(255, 107, 0, 0.9)",
+  "brandText": "YOURBRAND.COM",
+  "width": 1200,
+  "height": 630,
+  "format": "png"
+}

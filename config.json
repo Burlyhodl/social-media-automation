@@ -1,0 +1,25 @@
+{
+  "width": 1200,
+  "height": 630,
+  "output_dir": "output",
+  "font_title_size": 72,
+  "font_subtitle_size": 36,
+  "primary_color": "#CC5500",
+  "background_color": "#FFF8DC",
+  "text_color": "#2C2C2C",
+  "templates": {
+    "basic": {
+      "header_color": "#CC5500",
+      "footer_color": "#A64400",
+      "accent_color": "#FF6A13"
+    },
+    "gradient": {
+      "start_color": "#CC5500",
+      "end_color": "#FFF8DC"
+    },
+    "minimal": {
+      "accent_color": "#CC5500",
+      "text_color": "#2C2C2C"
+    }
+  }
+}

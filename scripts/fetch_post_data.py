@@ -9,6 +9,7 @@ import re
 import json
 from urllib.parse import urlparse, urljoin
 from typing import Dict, Optional
+from bs4 import BeautifulSoup
 
 
 class WordPressPostFetcher:
@@ -28,7 +29,7 @@ class WordPressPostFetcher:
 
     def fetch_post_data(self) -> Optional[Dict]:
         """
-        Fetch post data from WordPress REST API
+        Fetch post data from WordPress REST API with web scraping fallback
         Returns dict with: title, excerpt, featured_image_url, author, date
         """
         slug = self.extract_post_slug()
@@ -37,7 +38,7 @@ class WordPressPostFetcher:
             print(f"Error: Could not extract post slug from URL: {self.post_url}")
             return None
 
-        # WordPress REST API endpoint
+        # Try REST API first
         api_url = urljoin(self.base_url, f'/wp-json/wp/v2/posts?slug={slug}')
 
         try:
@@ -49,7 +50,8 @@ class WordPressPostFetcher:
 
             if not posts or len(posts) == 0:
                 print(f"No post found with slug: {slug}")
-                return None
+                print("Falling back to web scraping...")
+                return self._scrape_post_data()
 
             post = posts[0]  # Get first matching post
 
@@ -96,7 +98,115 @@ class WordPressPostFetcher:
             return result
 
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching post data: {e}")
+            print(f"REST API error: {e}")
+            print("Falling back to web scraping...")
+            return self._scrape_post_data()
+
+    def _scrape_post_data(self) -> Optional[Dict]:
+        """
+        Fallback method: Scrape post data directly from the HTML page
+        """
+        try:
+            print(f"Scraping post data from: {self.post_url}")
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
+            }
+            response = requests.get(self.post_url, timeout=10, headers=headers, allow_redirects=True)
+            response.raise_for_status()
+
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Extract title - try multiple common selectors
+            title = None
+            title_selectors = [
+                'h1.entry-title',
+                'h1.post-title',
+                'h1[class*="title"]',
+                'article h1',
+                'h1'
+            ]
+
+            for selector in title_selectors:
+                title_elem = soup.select_one(selector)
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    break
+
+            # Fallback to meta tags or page title
+            if not title:
+                og_title = soup.find('meta', property='og:title')
+                if og_title:
+                    title = og_title.get('content', '')
+                else:
+                    title_tag = soup.find('title')
+                    title = title_tag.get_text(strip=True) if title_tag else 'Untitled'
+
+            # Extract featured image - try multiple methods
+            featured_image_url = None
+
+            # Try Open Graph image
+            og_image = soup.find('meta', property='og:image')
+            if og_image:
+                featured_image_url = og_image.get('content')
+
+            # Try common WordPress image selectors
+            if not featured_image_url:
+                img_selectors = [
+                    'img.wp-post-image',
+                    'img.attachment-post-thumbnail',
+                    'div.post-thumbnail img',
+                    'figure.wp-block-post-featured-image img',
+                    'article img'
+                ]
+
+                for selector in img_selectors:
+                    img = soup.select_one(selector)
+                    if img:
+                        featured_image_url = img.get('src') or img.get('data-src')
+                        if featured_image_url:
+                            # Make absolute URL
+                            if featured_image_url.startswith('//'):
+                                featured_image_url = f"{self.parsed_url.scheme}:{featured_image_url}"
+                            elif featured_image_url.startswith('/'):
+                                featured_image_url = urljoin(self.base_url, featured_image_url)
+                            break
+
+            # Extract excerpt/description
+            excerpt = ''
+            meta_desc = soup.find('meta', attrs={'name': 'description'})
+            if meta_desc:
+                excerpt = meta_desc.get('content', '')
+            else:
+                og_desc = soup.find('meta', property='og:description')
+                if og_desc:
+                    excerpt = og_desc.get('content', '')
+
+            slug = self.extract_post_slug()
+
+            result = {
+                'title': title,
+                'excerpt': excerpt,
+                'featured_image_url': featured_image_url,
+                'author': '',
+                'date': '',
+                'link': self.post_url,
+                'slug': slug
+            }
+
+            print(f"Successfully scraped post: {title}")
+            if featured_image_url:
+                print(f"Found featured image: {featured_image_url}")
+
+            return result
+
+        except Exception as e:
+            print(f"Error scraping post data: {e}")
             return None
 
     @staticmethod

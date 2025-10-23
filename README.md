@@ -192,15 +192,46 @@ The default (1200x630) works great for most platforms!
 - Ensure the blog post URL is correct and publicly accessible
 - Check that the WordPress site has REST API enabled (standard for WordPress 4.7+)
 
+### Error: "REST API 403 Forbidden" or "Scraping 403 Forbidden"
+
+Some sites (including solartopps.com) have strict bot protection. Solutions:
+
+**Option 1: Use Demo Mode**
+```bash
+python demo.py --manual
+```
+Then manually enter your blog post details.
+
+**Option 2: Create Config Directly**
+```bash
+# Edit solar_topps_demo.json with your details
+# Then run:
+node scripts/generate_image.js solar_topps_demo.json
+```
+
+**Option 3: Use Browser Extension**
+Install a browser extension to copy blog post metadata, then use manual mode.
+
 ### Error: "Node.js not found"
 
 - Install Node.js from https://nodejs.org/
 - Run `npm install` after installing Node.js
 
+### Error: "Puppeteer Chrome download failed"
+
+```bash
+# Update to latest Puppeteer
+npm install puppeteer@latest
+
+# Or skip download and use system Chrome
+PUPPETEER_SKIP_DOWNLOAD=true npm install
+```
+
 ### Error: "No featured image found"
 
 - The system will use a default placeholder image
 - Ensure your blog post has a featured image set in WordPress
+- Use manual mode to provide image URL directly
 
 ### Images look different than expected
 

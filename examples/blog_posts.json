@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Getting Started with Social Media Automation",
+    "subtitle": "A comprehensive guide for beginners",
+    "template": "basic",
+    "output": "getting_started.png"
+  },
+  {
+    "title": "10 Tips for Effective Content Creation",
+    "subtitle": "Boost your engagement with these strategies",
+    "template": "gradient",
+    "output": "10_tips.png"
+  },
+  {
+    "title": "The Power of Visual Content",
+    "subtitle": "Why images matter in social media",
+    "template": "minimal",
+    "output": "visual_content.png"
+  },
+  {
+    "title": "Automating Your Marketing Workflow",
+    "subtitle": "Save time and increase productivity",
+    "template": "basic",
+    "output": "automation_workflow.png"
+  },
+  {
+    "title": "Building Your Brand Identity",
+    "subtitle": "Consistency is key to success",
+    "template": "gradient",
+    "output": "brand_identity.png"
+  }
+]
